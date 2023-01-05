@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
@@ -32,14 +34,16 @@ class PhotoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    
+
     //画像アップロード処理
     public function store(Request $request)
     {
         $savedFilePath = $request->file('image')->store('photos', 'public');
         Log::debug($savedFilePath);
+        $fileName = pathinfo($savedFilePath, PATHINFO_BASENAME);
+        Log::debug($fileName);
 
-        return to_route('photos.create')-with('success', 'アップロードしました');
+        return to_route('photos.show', ['photo' => $fileName])->with('success', 'アップロードしました');
     }
 
     /**
@@ -48,9 +52,9 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($fileName)
     {
-        //
+        return view('photos.show', ['fileName'=> $fileName]);
     }
 
     /**
@@ -82,8 +86,9 @@ class PhotoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($fileName)
     {
-        //
+        Storage::disk('public')->delete('photos/'. $fileName);
+        return to_route('photos.create')->with('success', '削除しました');
     }
 }
