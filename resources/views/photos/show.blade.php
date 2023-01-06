@@ -11,5 +11,6 @@
         @CSRF
         @method('DELETE')
         <button type="submit">削除</button>
+        <a href="{{ route('photos.download',['photo'=>$fileName]) }}">ダウンロード</a>
     </form>
 @endsection
